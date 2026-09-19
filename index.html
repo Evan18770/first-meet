@@ -537,7 +537,20 @@ document.querySelectorAll('.multi').forEach(group=>{
   });
 });
 
-document.getElementById('startBtn').addEventListener('click',()=>show(1));
+document.getElementById('startBtn').addEventListener('click',async()=>{
+  show(1);
+  if(bgm.paused){
+    try{
+      bgm.volume = 0;
+      await bgm.play();
+      fadeMusic(0.22, 1100);
+      musicBtn.textContent = '♫ music on';
+      musicBtn.classList.add('active');
+      musicBtn.setAttribute('aria-pressed','true');
+      localStorage.setItem('firstMeetMusic','on');
+    }catch(e){}
+  }
+});
 
 document.querySelectorAll('[data-next]').forEach(btn=>{
   btn.addEventListener('click',()=>{
