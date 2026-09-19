@@ -40,6 +40,23 @@
   .reset{
     border:0;background:transparent;color:#a38f8a;font-size:12px;cursor:pointer;padding:6px;
   }
+  .top-actions{display:flex;align-items:center;gap:6px}
+  .music-btn{
+    border:1px solid var(--line);
+    background:#fff;
+    color:#8b6f6b;
+    border-radius:999px;
+    padding:7px 10px;
+    font-size:12px;
+    cursor:pointer;
+    box-shadow:0 6px 16px rgba(82,55,49,.05);
+    transition:.18s ease;
+  }
+  .music-btn.active{
+    background:var(--accent-soft);
+    border-color:#e7c9c5;
+    color:#7a504c;
+  }
   .progress-track{
     height:7px;background:#f0e7e3;border-radius:999px;overflow:hidden;margin:12px 0 14px;
   }
@@ -135,7 +152,10 @@
 <main class="app">
   <div class="topbar">
     <span class="mini">tiny low-risk experiment ♡</span>
-    <button class="reset" id="resetBtn">reset</button>
+    <div class="top-actions">
+      <button class="music-btn" id="musicBtn" aria-pressed="false">♫ music</button>
+      <button class="reset" id="resetBtn">reset</button>
+    </div>
   </div>
   <div class="progress-track"><div class="progress" id="progress"></div></div>
 
@@ -321,15 +341,65 @@
 
   </section>
 
-  <div class="footer">Made for one simple mission: a nice first meet, at a pace that feels comfortable for both of us.</div>
+  <div class="footer">
+    Made for one simple mission: a nice first meet, at a pace that feels comfortable for both of us.<br>
+    <span style="opacity:.78">Music: Alex Morgan · Lofi Sunny Cafe</span>
+  </div>
 </main>
+
+<audio id="bgm" loop preload="metadata">
+  <source src="alex-morgan-lofi-sunny-cafe-568156.mp3" type="audio/mpeg">
+</audio>
 
 <script>
 const state = JSON.parse(localStorage.getItem('firstMeetState') || '{}');
 let current = Number(localStorage.getItem('firstMeetScreen') || 0);
 const screens = [...document.querySelectorAll('.screen')];
 const progress = document.getElementById('progress');
+const musicBtn = document.getElementById('musicBtn');
+const bgm = document.getElementById('bgm');
 const maxQ = 6;
+let fadeTimer = null;
+
+function fadeMusic(target, duration=700, onDone=null){
+  clearInterval(fadeTimer);
+  const start = bgm.volume;
+  const steps = 18;
+  let i = 0;
+  fadeTimer = setInterval(()=>{
+    i++;
+    bgm.volume = Math.max(0, Math.min(1, start + (target-start)*(i/steps)));
+    if(i >= steps){
+      clearInterval(fadeTimer);
+      bgm.volume = target;
+      if(onDone) onDone();
+    }
+  }, Math.max(20, duration/steps));
+}
+
+async function toggleMusic(){
+  if(bgm.paused){
+    try{
+      bgm.volume = 0;
+      await bgm.play();
+      fadeMusic(0.22, 900);
+      musicBtn.textContent = '♫ music on';
+      musicBtn.classList.add('active');
+      musicBtn.setAttribute('aria-pressed','true');
+      localStorage.setItem('firstMeetMusic','on');
+    }catch(e){
+      musicBtn.textContent = 'tap to play ♫';
+    }
+  }else{
+    fadeMusic(0, 500, ()=>{
+      bgm.pause();
+      musicBtn.textContent = '♫ music';
+      musicBtn.classList.remove('active');
+      musicBtn.setAttribute('aria-pressed','false');
+      localStorage.setItem('firstMeetMusic','off');
+    });
+  }
+}
 
 function save(){
   localStorage.setItem('firstMeetState', JSON.stringify(state));
@@ -547,6 +617,12 @@ document.getElementById('shareBtn').addEventListener('click', async ()=>{
     box.innerHTML = 'Copied ♡<br>You can paste it into Instagram, WhatsApp, Telegram, or anywhere you like.';
   }
 });
+
+musicBtn.addEventListener('click', toggleMusic);
+
+if(localStorage.getItem('firstMeetMusic') === 'on'){
+  musicBtn.textContent = '♫ tap to resume';
+}
 
 document.getElementById('resetBtn').addEventListener('click',()=>{
   Object.keys(state).forEach(k=>delete state[k]);
