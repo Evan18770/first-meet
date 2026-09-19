@@ -89,6 +89,19 @@
   .ghost{flex:1;background:#fff;border:1px solid var(--line);color:#6f625f}
   .weekend-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
   .weekend-grid .choice{text-align:center}
+  .selection-note{
+    display:none;
+    margin-top:12px;
+    padding:11px 13px;
+    border-radius:14px;
+    background:#fff7f4;
+    border:1px solid #f0ddd7;
+    color:#765c57;
+    font-size:12.5px;
+    line-height:1.45;
+    text-align:center;
+  }
+  .selection-note.show{display:block}
   .hintbox{
     background:var(--warm);border:1px solid #f1dfd8;border-radius:18px;padding:14px 15px;
     margin-top:17px;color:#745954;font-size:13px;line-height:1.5;
@@ -208,8 +221,8 @@
           <button class="choice" data-value="17–18 Oct"><strong>17–18 Oct</strong></button>
           <button class="choice" data-value="24–25 Oct"><strong>24–25 Oct</strong></button>
           <button class="choice" data-value="31 Oct–1 Nov"><strong>31 Oct–1 Nov</strong></button>
-          <button class="choice" data-value="Not sure yet"><strong>Not sure yet</strong></button>
         </div>
+        <div class="selection-note" id="weekendNote"></div>
       </div>
       <div class="nav">
         <button class="btn secondary" data-back>Back</button>
@@ -362,6 +375,21 @@ function restoreUI(){
     const next = group.closest('.screen')?.querySelector('[data-next]');
     if(next) next.disabled = vals.length===0;
   });
+
+  const weekendNote = document.getElementById('weekendNote');
+  const weekendVals = Array.isArray(state.weekends) ? state.weekends : [];
+  if(weekendNote){
+    if(weekendVals.length === 0){
+      weekendNote.classList.remove('show');
+      weekendNote.textContent = '';
+    }else if(weekendVals.length === 1){
+      weekendNote.textContent = '✓ Low-risk window found. I’ll work around this one ♡';
+      weekendNote.classList.add('show');
+    }else{
+      weekendNote.textContent = '✓ Nice, we have options. Scheduling risk officially reduced haha.';
+      weekendNote.classList.add('show');
+    }
+  }
 }
 
 document.querySelectorAll('.single').forEach(group=>{
@@ -380,12 +408,7 @@ document.querySelectorAll('.multi').forEach(group=>{
     let vals = Array.isArray(state[key]) ? [...state[key]] : [];
     const v=btn.dataset.value;
 
-    if(v==='Not sure yet'){
-      vals = vals.includes(v) ? [] : [v];
-    }else{
-      vals = vals.filter(x=>x!=='Not sure yet');
-      vals = vals.includes(v) ? vals.filter(x=>x!==v) : [...vals,v];
-    }
+    vals = vals.includes(v) ? vals.filter(x=>x!==v) : [...vals,v];
 
     state[key]=vals;
     restoreUI(); save();
