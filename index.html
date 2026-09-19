@@ -144,13 +144,13 @@
     <div class="screen active" data-screen="0">
       <div>
         <div class="eyebrow">For Jie Ning</div>
-        <h1>I thought “when are you free?” was a bit too boring.</h1>
+        <h1>I thought just asking “when are you free?” was a bit too boring for us.</h1>
         <p class="lead">
           So I made a tiny first-meet planner instead.
           One question at a time, no pressure, and definitely no audit report required.
         </p>
         <div class="hintbox">
-          You can choose whatever feels comfortable. Nothing here is “locked” until we both agree.
+          Choose whatever feels comfortable. Nothing is locked until we both agree, and you can always change your mind.
         </div>
       </div>
       <div class="nav">
@@ -177,6 +177,7 @@
             <span>If the BKT is bad, no one can save it.</span>
           </button>
         </div>
+        <div class="selection-note" id="foodNote"></div>
       </div>
       <div class="nav">
         <button class="btn secondary" data-back>Back</button>
@@ -203,6 +204,7 @@
             <span>Fair. One step at a time.</span>
           </button>
         </div>
+        <div class="selection-note" id="chanceNote"></div>
       </div>
       <div class="nav">
         <button class="btn secondary" data-back>Back</button>
@@ -213,8 +215,8 @@
     <div class="screen" data-screen="3">
       <div>
         <div class="eyebrow">Question 3</div>
-        <h2>Which October weekend(s) could work for you?</h2>
-        <p class="small-note">You can pick more than one. Easier for both of us.</p>
+        <h2>Which October weekend(s) should I keep free for you?</h2>
+        <p class="small-note">Pick one or more. I’ll work around what feels easiest for you.</p>
         <div class="weekend-grid multi" data-key="weekends">
           <button class="choice" data-value="3–4 Oct"><strong>3–4 Oct</strong></button>
           <button class="choice" data-value="10–11 Oct"><strong>10–11 Oct</strong></button>
@@ -241,6 +243,7 @@
           <button class="choice" data-value="Afternoon"><strong>Afternoon</strong><span>Coffee / dessert kind of timing.</span></button>
           <button class="choice" data-value="Flexible"><strong>Flexible</strong><span>We decide closer to the day.</span></button>
         </div>
+        <div class="selection-note" id="timingNote"></div>
       </div>
       <div class="nav">
         <button class="btn secondary" data-back>Back</button>
@@ -260,6 +263,7 @@
           <button class="choice" data-value="Casual meal"><strong>Casual meal</strong><span>You choose the mood, I’ll find the place.</span></button>
           <button class="choice" data-value="Surprise"><strong>Surprise me</strong><span>Dangerous amount of trust haha.</span></button>
         </div>
+        <div class="selection-note" id="vibeNote"></div>
       </div>
       <div class="nav">
         <button class="btn secondary" data-back>Back</button>
@@ -278,6 +282,7 @@
           <button class="choice" data-value="Somewhere convenient for you"><strong>Somewhere convenient for me</strong></button>
           <button class="choice" data-value="You choose, I approve"><strong>You choose, I approve</strong><span>Public place + daylight risk controls still apply 😂</span></button>
         </div>
+        <div class="selection-note" id="areaNote"></div>
       </div>
       <div class="nav">
         <button class="btn secondary" data-back>Back</button>
@@ -288,8 +293,8 @@
     <div class="screen" data-screen="7">
       <div>
         <div class="eyebrow">Assessment complete ✓</div>
-        <h2>I think we have enough to plan our first meet.</h2>
-        <p class="lead">No need to lock every detail today. I’ll take it from here and keep it simple.</p>
+        <h2>Okay, I got you. I’ll take it from here.</h2>
+        <p class="lead">Thanks for playing along with my slightly overengineered way of asking you out haha. I’m looking forward to finally meeting you.</p>
 
         <div class="summary" id="summary"></div>
 
@@ -297,6 +302,7 @@
           Risk mitigation: public place, daylight, good food, no pressure.<br>
           Remaining risk: we may end up talking too long and need a second restaurant haha.
         </div>
+        <div class="selection-note show" id="finalWarmNote">One thing is already confirmed: I’ll be happy just getting the chance to know you a little better in person ♡</div>
 
         <div class="copy-status" id="copyStatus">
           Copied ♡<br>
@@ -315,7 +321,7 @@
 
   </section>
 
-  <div class="footer">Made for one simple mission: finally meeting each other in October.</div>
+  <div class="footer">Made for one simple mission: a nice first meet, at a pace that feels comfortable for both of us.</div>
 </main>
 
 <script>
@@ -389,6 +395,52 @@ function restoreUI(){
       weekendNote.textContent = '✓ Nice, we have options. Scheduling risk officially reduced haha.';
       weekendNote.classList.add('show');
     }
+  }
+
+  setMicroNote('foodNote', {
+    person: 'Noted. Good company is officially part of the meal now ♡',
+    maybe: 'Fair haha. I’ll make sure both the food and company pass.',
+    food: 'Understood. Food quality control remains very strict 😂'
+  }[state.foodPerson]);
+
+  setMicroNote('chanceNote', {
+    proceed: 'Application received. I’ll try not to fail the review haha.',
+    slow: 'Deal. Slowly is good. I like this pace too.',
+    first: 'Fair enough. First meet first, no need to rush anything.'
+  }[state.chance]);
+
+  setMicroNote('timingNote', {
+    Morning: 'Sunny-morning mission noted. Now we just need the haze to cooperate.',
+    'Brunch / lunch': 'Nice. Enough time to eat properly and still talk slowly.',
+    Afternoon: 'Coffee and dessert territory… dangerous but acceptable.',
+    Flexible: 'Easy. We can keep this one low pressure and decide closer.'
+  }[state.timing]);
+
+  setMicroNote('vibeNote', {
+    'Breakfast + coffee': 'Quiet morning + coffee sounds like a pretty nice first chapter.',
+    BKT: 'BKT made it into the official plan. Somehow I’m not surprised haha.',
+    'Coffee + dessert': 'Dessert is now part of the control environment.',
+    'Casual meal': 'Simple and comfortable. I’ll find somewhere we can actually hear each other talk.',
+    Surprise: 'That is a suspicious amount of trust. I’ll use it responsibly haha.'
+  }[state.vibe]);
+
+  setMicroNote('areaNote', {
+    KL: 'KL noted. I’ll keep the travel risk reasonable.',
+    PJ: 'PJ noted. I’ll find somewhere easy and comfortable.',
+    'Somewhere convenient for you': 'Got it. Convenience first. I’ll work around you.',
+    'You choose, I approve': 'Dangerous authority granted. I’ll keep all controls in place 😂'
+  }[state.area]);
+}
+
+function setMicroNote(id, text){
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(text){
+    el.textContent = text;
+    el.classList.add('show');
+  }else{
+    el.textContent = '';
+    el.classList.remove('show');
   }
 }
 
