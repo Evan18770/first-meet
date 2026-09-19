@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#fffaf7" />
+<title>A Tiny First-Meet Plan</title>
+<style>
+  :root{
+    --bg:#fffaf7;
+    --card:#fff;
+    --text:#2e2928;
+    --muted:#7c716e;
+    --line:#eee3de;
+    --accent:#c77f7a;
+    --accent-soft:#f8e9e5;
+    --warm:#fff4ef;
+    --shadow:0 18px 48px rgba(78,53,47,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex;justify-content:center;align-items:center;
+    padding:20px 14px 36px;
+    background:
+      radial-gradient(circle at 9% -2%, #fff0e9 0 14%, transparent 15%),
+      radial-gradient(circle at 100% 8%, #f8efeb 0 13%, transparent 14%),
+      var(--bg);
+  }
+  .app{width:min(100%,460px)}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:10px;padding:0 2px;
+  }
+  .mini{
+    font-size:12px;color:#927b76;background:#fff;border:1px solid var(--line);
+    border-radius:999px;padding:7px 10px;
+  }
+  .reset{
+    border:0;background:transparent;color:#a38f8a;font-size:12px;cursor:pointer;padding:6px;
+  }
+  .progress-track{
+    height:7px;background:#f0e7e3;border-radius:999px;overflow:hidden;margin:12px 0 14px;
+  }
+  .progress{height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .3s ease}
+  .card{
+    background:rgba(255,255,255,.96);
+    border:1px solid var(--line);
+    border-radius:26px;
+    padding:22px;
+    min-height:430px;
+    box-shadow:var(--shadow);
+    display:flex;flex-direction:column;justify-content:space-between;
+    backdrop-filter:blur(8px);
+  }
+  .screen{display:none;animation:fade .24s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+  .eyebrow{
+    text-transform:uppercase;letter-spacing:.07em;font-weight:800;font-size:11px;color:#9a817c;margin-bottom:11px;
+  }
+  h1,h2{margin:0;letter-spacing:-.03em}
+  h1{font-size:31px;line-height:1.12}
+  h2{font-size:24px;line-height:1.28}
+  .lead{
+    color:var(--muted);font-size:15px;line-height:1.6;margin:13px 0 0;
+  }
+  .small-note{
+    color:#927f7b;font-size:13px;line-height:1.5;margin:10px 0 16px;
+  }
+  .choices{display:grid;gap:10px;margin-top:18px}
+  .choice{
+    width:100%;text-align:left;border:1px solid var(--line);background:#fff;color:var(--text);
+    border-radius:16px;padding:14px 15px;cursor:pointer;transition:.18s ease;font-size:15px;
+  }
+  .choice:hover{transform:translateY(-1px)}
+  .choice.active{border-color:var(--accent);background:var(--accent-soft);color:#6b4441}
+  .choice strong{display:block;font-size:15px;margin-bottom:3px}
+  .choice span{display:block;font-size:12.5px;color:var(--muted);line-height:1.4}
+  .choice.active span{color:#89635f}
+  .nav{display:flex;gap:9px;margin-top:22px}
+  .btn{
+    border:0;border-radius:15px;padding:13px 15px;font-weight:800;font-size:14px;cursor:pointer;
+  }
+  .primary{flex:1;background:var(--accent);color:#fff}
+  .primary:disabled{opacity:.42;cursor:not-allowed}
+  .secondary{width:88px;background:#f4eeeb;color:#6f625f}
+  .ghost{flex:1;background:#fff;border:1px solid var(--line);color:#6f625f}
+  .weekend-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+  .weekend-grid .choice{text-align:center}
+  .hintbox{
+    background:var(--warm);border:1px solid #f1dfd8;border-radius:18px;padding:14px 15px;
+    margin-top:17px;color:#745954;font-size:13px;line-height:1.5;
+  }
+  .summary{
+    background:#fff7f4;border:1px solid #f0ddd7;border-radius:18px;padding:15px;margin-top:17px;
+    font-size:14px;line-height:1.6;white-space:pre-line;
+  }
+  .final-quote{
+    margin-top:18px;padding:13px 14px;border-left:3px solid var(--accent);color:#6f5d59;
+    background:#fffaf8;border-radius:0 12px 12px 0;font-size:13px;line-height:1.55;
+  }
+  .copy-status{
+    display:none;
+    margin-top:14px;
+    padding:13px 14px;
+    border-radius:15px;
+    background:#f6eee9;
+    color:#6e5752;
+    font-size:13px;
+    line-height:1.5;
+    text-align:center;
+  }
+  .copy-status.show{display:block}
+  .footer{
+    text-align:center;color:#9d8f8b;font-size:11.5px;margin-top:13px;line-height:1.5;
+  }
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="topbar">
+    <span class="mini">tiny low-risk experiment ♡</span>
+    <button class="reset" id="resetBtn">reset</button>
+  </div>
+  <div class="progress-track"><div class="progress" id="progress"></div></div>
+
+  <section class="card">
+
+    <div class="screen active" data-screen="0">
+      <div>
+        <div class="eyebrow">For Jie Ning</div>
+        <h1>I thought “when are you free?” was a bit too boring.</h1>
+        <p class="lead">
+          So I made a tiny first-meet planner instead.
+          One question at a time, no pressure, and definitely no audit report required.
+        </p>
+        <div class="hintbox">
+          You can choose whatever feels comfortable. Nothing here is “locked” until we both agree.
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn primary" id="startBtn">Start the assessment haha</button>
+      </div>
+    </div>
+
+    <div class="screen" data-screen="1">
+      <div>
+        <div class="eyebrow">Question 1</div>
+        <h2>Be honest… does BKT or fish taste even better when you’re eating it with the right person?</h2>
+        <p class="small-note">Purely for research purposes, obviously.</p>
+        <div class="choices single" data-key="foodPerson">
+          <button class="choice" data-value="person">
+            <strong>Definitely. The person matters.</strong>
+            <span>Good food + good company = happier meal.</span>
+          </button>
+          <button class="choice" data-value="maybe">
+            <strong>Maybe a little haha</strong>
+            <span>Good company helps, but the food still needs to pass.</span>
+          </button>
+          <button class="choice" data-value="food">
+            <strong>Good food first 😂</strong>
+            <span>If the BKT is bad, no one can save it.</span>
+          </button>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn secondary" data-back>Back</button>
+        <button class="btn primary" data-next disabled>Continue</button>
+      </div>
+    </div>
+
+    <div class="screen" data-screen="2">
+      <div>
+        <div class="eyebrow">Question 2</div>
+        <h2 id="chanceQuestion">Then… would you give me a chance to try earning that spot?</h2>
+        <p class="small-note" id="chanceSub">One meet at a time. No rush.</p>
+        <div class="choices single" data-key="chance">
+          <button class="choice" data-value="proceed">
+            <strong>Okay, you may proceed 😂</strong>
+            <span>Application accepted for review.</span>
+          </button>
+          <button class="choice" data-value="slow">
+            <strong>Can, but slowly</strong>
+            <span>Low-risk approach only.</span>
+          </button>
+          <button class="choice" data-value="first">
+            <strong>First meet first, then we see</strong>
+            <span>Fair. One step at a time.</span>
+          </button>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn secondary" data-back>Back</button>
+        <button class="btn primary" data-next disabled>Continue</button>
+      </div>
+    </div>
+
+    <div class="screen" data-screen="3">
+      <div>
+        <div class="eyebrow">Question 3</div>
+        <h2>Which October weekend(s) could work for you?</h2>
+        <p class="small-note">You can pick more than one. Easier for both of us.</p>
+        <div class="weekend-grid multi" data-key="weekends">
+          <button class="choice" data-value="3–4 Oct"><strong>3–4 Oct</strong></button>
+          <button class="choice" data-value="10–11 Oct"><strong>10–11 Oct</strong></button>
+          <button class="choice" data-value="17–18 Oct"><strong>17–18 Oct</strong></button>
+          <button class="choice" data-value="24–25 Oct"><strong>24–25 Oct</strong></button>
+          <button class="choice" data-value="31 Oct–1 Nov"><strong>31 Oct–1 Nov</strong></button>
+          <button class="choice" data-value="Not sure yet"><strong>Not sure yet</strong></button>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn secondary" data-back>Back</button>
+        <button class="btn primary" data-next disabled>Continue</button>
+      </div>
+    </div>
+
+    <div class="screen" data-screen="4">
+      <div>
+        <div class="eyebrow">Question 4</div>
+        <h2>What timing would feel easiest for you?</h2>
+        <p class="small-note">I’m still secretly hoping the haze gives us one nice sunny day.</p>
+        <div class="choices single" data-key="timing">
+          <button class="choice" data-value="Morning"><strong>Morning</strong><span>Sunny morning if the haze behaves.</span></button>
+          <button class="choice" data-value="Brunch / lunch"><strong>Brunch / lunch</strong><span>Relaxed and easy.</span></button>
+          <button class="choice" data-value="Afternoon"><strong>Afternoon</strong><span>Coffee / dessert kind of timing.</span></button>
+          <button class="choice" data-value="Flexible"><strong>Flexible</strong><span>We decide closer to the day.</span></button>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn secondary" data-back>Back</button>
+        <button class="btn primary" data-next disabled>Continue</button>
+      </div>
+    </div>
+
+    <div class="screen" data-screen="5">
+      <div>
+        <div class="eyebrow">Question 5</div>
+        <h2>What kind of first-meet vibe sounds nicest?</h2>
+        <p class="small-note">Nothing too serious. Just somewhere we can actually talk.</p>
+        <div class="choices single" data-key="vibe">
+          <button class="choice" data-value="Breakfast + coffee"><strong>Breakfast + coffee</strong><span>Simple, quiet, easy to talk.</span></button>
+          <button class="choice" data-value="BKT"><strong>BKT mission</strong><span>We already created this craving anyway.</span></button>
+          <button class="choice" data-value="Coffee + dessert"><strong>Coffee + dessert</strong><span>Low commitment, high sugar.</span></button>
+          <button class="choice" data-value="Casual meal"><strong>Casual meal</strong><span>You choose the mood, I’ll find the place.</span></button>
+          <button class="choice" data-value="Surprise"><strong>Surprise me</strong><span>Dangerous amount of trust haha.</span></button>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn secondary" data-back>Back</button>
+        <button class="btn primary" data-next disabled>Continue</button>
+      </div>
+    </div>
+
+    <div class="screen" data-screen="6">
+      <div>
+        <div class="eyebrow">Last one</div>
+        <h2>Where would feel most convenient?</h2>
+        <p class="small-note">I’ll handle the actual restaurant options after this.</p>
+        <div class="choices single" data-key="area">
+          <button class="choice" data-value="KL"><strong>KL</strong></button>
+          <button class="choice" data-value="PJ"><strong>PJ</strong></button>
+          <button class="choice" data-value="Somewhere convenient for you"><strong>Somewhere convenient for me</strong></button>
+          <button class="choice" data-value="You choose, I approve"><strong>You choose, I approve</strong><span>Public place + daylight risk controls still apply 😂</span></button>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="btn secondary" data-back>Back</button>
+        <button class="btn primary" data-next disabled>See the result</button>
+      </div>
+    </div>
+
+    <div class="screen" data-screen="7">
+      <div>
+        <div class="eyebrow">Assessment complete ✓</div>
+        <h2>I think we have enough to plan our first meet.</h2>
+        <p class="lead">No need to lock every detail today. I’ll take it from here and keep it simple.</p>
+
+        <div class="summary" id="summary"></div>
+
+        <div class="final-quote">
+          Risk mitigation: public place, daylight, good food, no pressure.<br>
+          Remaining risk: we may end up talking too long and need a second restaurant haha.
+        </div>
+
+        <div class="copy-status" id="copyStatus">
+          Copied ♡<br>
+          Now just paste it back into our Instagram chat. I’ll handle the rest.
+        </div>
+      </div>
+
+      <div class="nav" style="flex-wrap:wrap">
+        <button class="btn secondary" data-back>Back</button>
+        <button class="btn primary" id="copySendBtn">Copy & send to Evan ♡</button>
+      </div>
+      <div class="nav" style="margin-top:9px">
+        <button class="btn ghost" id="shareBtn">Share another way</button>
+      </div>
+    </div>
+
+  </section>
+
+  <div class="footer">Made for one simple mission: finally meeting each other in October.</div>
+</main>
+
+<script>
+const state = JSON.parse(localStorage.getItem('firstMeetState') || '{}');
+let current = Number(localStorage.getItem('firstMeetScreen') || 0);
+const screens = [...document.querySelectorAll('.screen')];
+const progress = document.getElementById('progress');
+const maxQ = 6;
+
+function save(){
+  localStorage.setItem('firstMeetState', JSON.stringify(state));
+  localStorage.setItem('firstMeetScreen', String(current));
+}
+
+function show(n){
+  current = n;
+  screens.forEach(s => s.classList.toggle('active', Number(s.dataset.screen) === n));
+  const pct = n===0 ? 0 : n>=7 ? 100 : (n/maxQ)*100;
+  progress.style.width = pct + '%';
+  adaptQ2();
+  restoreUI();
+  save();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function adaptQ2(){
+  const q = document.getElementById('chanceQuestion');
+  const sub = document.getElementById('chanceSub');
+  if(state.foodPerson === 'person'){
+    q.textContent = 'Then… would you give me a chance to try earning that “right person to makan with” spot?';
+    sub.textContent = 'One meet at a time. No rush.';
+  }else if(state.foodPerson === 'maybe'){
+    q.textContent = 'Then… would you let me try for the BKT / makan ikan sharing-partner role?';
+    sub.textContent = 'Low-risk trial period first haha.';
+  }else if(state.foodPerson === 'food'){
+    q.textContent = 'Fair haha. Then can I at least apply as the person who finds good food and shares the fish with you?';
+    sub.textContent = 'Food quality remains a non-negotiable control.';
+  }
+}
+
+function restoreUI(){
+  document.querySelectorAll('.single').forEach(group=>{
+    const key = group.dataset.key;
+    group.querySelectorAll('.choice').forEach(btn=>{
+      btn.classList.toggle('active', state[key] === btn.dataset.value);
+    });
+    const next = group.closest('.screen')?.querySelector('[data-next]');
+    if(next) next.disabled = !state[key];
+  });
+
+  document.querySelectorAll('.multi').forEach(group=>{
+    const key = group.dataset.key;
+    const vals = Array.isArray(state[key]) ? state[key] : [];
+    group.querySelectorAll('.choice').forEach(btn=>{
+      btn.classList.toggle('active', vals.includes(btn.dataset.value));
+    });
+    const next = group.closest('.screen')?.querySelector('[data-next]');
+    if(next) next.disabled = vals.length===0;
+  });
+}
+
+document.querySelectorAll('.single').forEach(group=>{
+  const key = group.dataset.key;
+  group.addEventListener('click',e=>{
+    const btn=e.target.closest('.choice'); if(!btn)return;
+    state[key]=btn.dataset.value;
+    restoreUI(); save();
+  });
+});
+
+document.querySelectorAll('.multi').forEach(group=>{
+  const key = group.dataset.key;
+  group.addEventListener('click',e=>{
+    const btn=e.target.closest('.choice'); if(!btn)return;
+    let vals = Array.isArray(state[key]) ? [...state[key]] : [];
+    const v=btn.dataset.value;
+
+    if(v==='Not sure yet'){
+      vals = vals.includes(v) ? [] : [v];
+    }else{
+      vals = vals.filter(x=>x!=='Not sure yet');
+      vals = vals.includes(v) ? vals.filter(x=>x!==v) : [...vals,v];
+    }
+
+    state[key]=vals;
+    restoreUI(); save();
+  });
+});
+
+document.getElementById('startBtn').addEventListener('click',()=>show(1));
+
+document.querySelectorAll('[data-next]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if(current===6){
+      buildSummary();
+      show(7);
+    } else {
+      show(current+1);
+    }
+  });
+});
+
+document.querySelectorAll('[data-back]').forEach(btn=>{
+  btn.addEventListener('click',()=>show(Math.max(0,current-1)));
+});
+
+function resultText(){
+  const weekends = Array.isArray(state.weekends) ? state.weekends.join(', ') : 'TBC';
+  const tone = state.chance==='proceed'
+    ? 'Application accepted for review 😂'
+    : state.chance==='slow'
+    ? 'Low-risk approach, slowly'
+    : 'First meet first, then we see';
+
+  return `My first-meet choices ♡
+
+Status: ${tone}
+Weekend(s): ${weekends}
+Timing: ${state.timing || 'TBC'}
+Vibe: ${state.vibe || 'TBC'}
+Area: ${state.area || 'TBC'}
+
+Your turn now — shortlist the place haha`;
+}
+
+function buildSummary(){
+  document.getElementById('summary').textContent = resultText();
+}
+
+async function copyText(){
+  const text = resultText();
+  try{
+    await navigator.clipboard.writeText(text);
+    return true;
+  }catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return ok;
+  }
+}
+
+document.getElementById('copySendBtn').addEventListener('click', async ()=>{
+  buildSummary();
+  const ok = await copyText();
+  const box = document.getElementById('copyStatus');
+  box.classList.add('show');
+  if(!ok){
+    box.innerHTML = 'I couldn’t copy automatically on this browser.<br>Please long-press the result above and copy it into our Instagram chat ♡';
+  }
+});
+
+document.getElementById('shareBtn').addEventListener('click', async ()=>{
+  buildSummary();
+  const text = resultText();
+  if(navigator.share){
+    try{
+      await navigator.share({title:'Our first meet', text});
+    }catch(e){}
+  }else{
+    await copyText();
+    const box = document.getElementById('copyStatus');
+    box.classList.add('show');
+    box.innerHTML = 'Copied ♡<br>You can paste it into Instagram, WhatsApp, Telegram, or anywhere you like.';
+  }
+});
+
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  Object.keys(state).forEach(k=>delete state[k]);
+  localStorage.removeItem('firstMeetState');
+  localStorage.removeItem('firstMeetScreen');
+  document.getElementById('copyStatus').classList.remove('show');
+  show(0);
+});
+
+if(current<0 || current>7) current=0;
+show(current);
+if(current===7) buildSummary();
+</script>
+</body>
+</html>
