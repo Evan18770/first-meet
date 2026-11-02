@@ -525,12 +525,17 @@ function restoreUI(){
     }else{
       const dateNotes = {
         '2026-11-07': 'It’s close to Deepavali. Maybe we could try some Indian food?',
-        '2026-11-14': 'Did you know 14 Nov is Orange Day & Movie Day?',
+        '2026-11-14': 'Did you know 14 Nov is Orange Day & Movie Day 橙色情人节？',
         '2026-11-28': 'Already in the Christmas mood, huh?'
       };
       const notes = weekendOptions
         .filter(option => weekendVals.includes(option.value) && dateNotes[option.value])
         .map(option => (weekendVals.length > 1 ? option.label + ': ' : '') + dateNotes[option.value]);
+      const countNote = {
+        3: 'Three weekends? Wah, I’m spoilt for choice now haha.',
+        4: 'All four? Are we planning a first meet or a whole month of makan dates now? haha.'
+      }[weekendVals.length];
+      if(countNote) notes.unshift(countNote);
       weekendNote.textContent = notes.length > 0
         ? notes.join('\n\n')
         : weekendVals.length === 1
