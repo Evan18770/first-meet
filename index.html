@@ -533,7 +533,7 @@ function restoreUI(){
         .map(option => (weekendVals.length > 1 ? option.label + ': ' : '') + dateNotes[option.value]);
       const countNote = {
         3: 'Three weekends? Wah, I feel quite honoured haha.',
-        4: 'All four? Are we planning a first meet or a whole month of makan dates now? haha.'
+        4: 'All four? That’s suspiciously generous. Do I need to file an STR? haha.'
       }[weekendVals.length];
       if(countNote) notes.unshift(countNote);
       weekendNote.textContent = notes.length > 0
