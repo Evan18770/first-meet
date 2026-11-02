@@ -119,6 +119,7 @@
     text-align:center;
   }
   .selection-note.show{display:block}
+  #weekendNote{white-space:pre-line}
   .hintbox{
     background:var(--warm);border:1px solid #f1dfd8;border-radius:18px;padding:14px 15px;
     margin-top:17px;color:#745954;font-size:13px;line-height:1.5;
@@ -521,11 +522,20 @@ function restoreUI(){
     if(weekendVals.length === 0){
       weekendNote.classList.remove('show');
       weekendNote.textContent = '';
-    }else if(weekendVals.length === 1){
-      weekendNote.textContent = '✓ Low-risk window found. I’ll work around this one ♡';
-      weekendNote.classList.add('show');
     }else{
-      weekendNote.textContent = '✓ Nice, we have options. Scheduling risk officially reduced haha.';
+      const dateNotes = {
+        '2026-11-07': 'It’s close to Deepavali. Maybe we could try some Indian food?',
+        '2026-11-14': 'Did you know 14 Nov is Orange Day & Movie Day?',
+        '2026-11-28': 'Already in the Christmas mood, huh?'
+      };
+      const notes = weekendOptions
+        .filter(option => weekendVals.includes(option.value) && dateNotes[option.value])
+        .map(option => (weekendVals.length > 1 ? option.label + ': ' : '') + dateNotes[option.value]);
+      weekendNote.textContent = notes.length > 0
+        ? notes.join('\n\n')
+        : weekendVals.length === 1
+        ? '✓ Low-risk window found. I’ll work around this one ♡'
+        : '✓ Nice, we have options. Scheduling risk officially reduced haha.';
       weekendNote.classList.add('show');
     }
   }
