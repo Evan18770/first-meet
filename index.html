@@ -528,19 +528,14 @@ function restoreUI(){
         '2026-11-14': 'Did you know 14 Nov is Orange Day & Movie Day 橙色情人节？',
         '2026-11-28': 'Already in the Christmas mood, huh?'
       };
-      const notes = weekendOptions
-        .filter(option => weekendVals.includes(option.value) && dateNotes[option.value])
-        .map(option => (weekendVals.length > 1 ? option.label + ': ' : '') + dateNotes[option.value]);
-      const countNote = {
+      const countNotes = {
+        2: '✓ Nice, we have options. Scheduling risk officially reduced haha.',
         3: 'Three weekends? Wah, I feel quite honoured haha.',
         4: 'All four? That’s suspiciously generous. Do I need to file an STR? haha.'
-      }[weekendVals.length];
-      if(countNote) notes.unshift(countNote);
-      weekendNote.textContent = notes.length > 0
-        ? notes.join('\n\n')
-        : weekendVals.length === 1
-        ? '✓ Low-risk window found. I’ll work around this one ♡'
-        : '✓ Nice, we have options. Scheduling risk officially reduced haha.';
+      };
+      weekendNote.textContent = weekendVals.length === 1
+        ? dateNotes[weekendVals[0]] || '✓ Low-risk window found. I’ll work around this one ♡'
+        : countNotes[weekendVals.length];
       weekendNote.classList.add('show');
     }
   }
