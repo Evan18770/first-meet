@@ -235,14 +235,13 @@
     <div class="screen" data-screen="3">
       <div>
         <div class="eyebrow">Question 3</div>
-        <h2>Which October weekend(s) should I keep free for you?</h2>
-        <p class="small-note">Pick one or more. I’ll work around what feels easiest for you.</p>
+        <h2>Which upcoming weekend(s) might work for you?</h2>
+        <p class="small-note">Pick any that might work. We can confirm the date later.</p>
         <div class="weekend-grid multi" data-key="weekends">
-          <button class="choice" data-value="3–4 Oct"><strong>3–4 Oct</strong></button>
-          <button class="choice" data-value="10–11 Oct"><strong>10–11 Oct</strong></button>
-          <button class="choice" data-value="17–18 Oct"><strong>17–18 Oct</strong></button>
-          <button class="choice" data-value="24–25 Oct"><strong>24–25 Oct</strong></button>
-          <button class="choice" data-value="31 Oct–1 Nov"><strong>31 Oct–1 Nov</strong></button>
+          <button class="choice" data-value="2026-11-07"><strong>7–8 Nov 2026</strong></button>
+          <button class="choice" data-value="2026-11-14"><strong>14–15 Nov 2026</strong></button>
+          <button class="choice" data-value="2026-11-21"><strong>21–22 Nov 2026</strong></button>
+          <button class="choice" data-value="2026-11-28"><strong>28–29 Nov 2026</strong></button>
         </div>
         <div class="selection-note" id="weekendNote"></div>
       </div>
@@ -256,9 +255,9 @@
       <div>
         <div class="eyebrow">Question 4</div>
         <h2>What timing would feel easiest for you?</h2>
-        <p class="small-note">I’m still secretly hoping the haze gives us one nice sunny day.</p>
+        <p class="small-note">A relaxed morning or a lazy afternoon? Your call.</p>
         <div class="choices single" data-key="timing">
-          <button class="choice" data-value="Morning"><strong>Morning</strong><span>Sunny morning if the haze behaves.</span></button>
+          <button class="choice" data-value="Morning"><strong>Morning</strong><span>A slow start with good food and coffee.</span></button>
           <button class="choice" data-value="Brunch / lunch"><strong>Brunch / lunch</strong><span>Relaxed and easy.</span></button>
           <button class="choice" data-value="Afternoon"><strong>Afternoon</strong><span>Coffee / dessert kind of timing.</span></button>
           <button class="choice" data-value="Flexible"><strong>Flexible</strong><span>We decide closer to the day.</span></button>
@@ -299,7 +298,7 @@
         <div class="choices single" data-key="area">
           <button class="choice" data-value="KL"><strong>KL</strong></button>
           <button class="choice" data-value="PJ"><strong>PJ</strong></button>
-          <button class="choice" data-value="Somewhere convenient for you"><strong>Somewhere convenient for me</strong></button>
+          <button class="choice" data-value="Somewhere convenient for me"><strong>Somewhere convenient for me</strong></button>
           <button class="choice" data-value="You choose, I approve"><strong>You choose, I approve</strong><span>Public place + daylight risk controls still apply 😂</span></button>
         </div>
         <div class="selection-note" id="areaNote"></div>
@@ -332,7 +331,7 @@
 
       <div class="nav" style="flex-wrap:wrap">
         <button class="btn secondary" data-back>Back</button>
-        <button class="btn primary" id="copySendBtn">Copy & send to Evan ♡</button>
+        <button class="btn primary" id="copySendBtn">Copy my choices</button>
       </div>
       <div class="nav" style="margin-top:9px">
         <button class="btn ghost" id="shareBtn">Share another way</button>
@@ -360,6 +359,67 @@ const musicBtn = document.getElementById('musicBtn');
 const bgm = document.getElementById('bgm');
 const maxQ = 6;
 let fadeTimer = null;
+let weekendOptions = [];
+
+if(state.area === 'Somewhere convenient for you'){
+  state.area = 'Somewhere convenient for me';
+}
+
+function upcomingWeekends(now = new Date()){
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Kuala_Lumpur', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(now);
+  const part = type => Number(parts.find(p => p.type === type).value);
+  // UTC arithmetic keeps these Malaysian calendar dates independent of the device timezone.
+  const today = new Date(Date.UTC(part('year'), part('month') - 1, part('day')));
+  const saturday = new Date(today);
+  // Keep an ongoing weekend available until Sunday ends.
+  const offset = today.getUTCDay() === 0 ? -1 : (6 - today.getUTCDay() + 7) % 7;
+  saturday.setUTCDate(today.getUTCDate() + offset);
+  const month = date => date.toLocaleDateString('en-GB', {month: 'short', timeZone: 'UTC'});
+
+  return Array.from({length: 4}, (_, i) => {
+    const start = new Date(saturday);
+    start.setUTCDate(start.getUTCDate() + i * 7);
+    const end = new Date(start);
+    end.setUTCDate(end.getUTCDate() + 1);
+    let label;
+    if(start.getUTCFullYear() !== end.getUTCFullYear()){
+      label = `${start.getUTCDate()} ${month(start)} ${start.getUTCFullYear()}–${end.getUTCDate()} ${month(end)} ${end.getUTCFullYear()}`;
+    }else if(start.getUTCMonth() !== end.getUTCMonth()){
+      label = `${start.getUTCDate()} ${month(start)}–${end.getUTCDate()} ${month(end)} ${end.getUTCFullYear()}`;
+    }else{
+      label = `${start.getUTCDate()}–${end.getUTCDate()} ${month(end)} ${end.getUTCFullYear()}`;
+    }
+    return {value: start.toISOString().slice(0, 10), label};
+  });
+}
+
+function refreshWeekends(){
+  const options = upcomingWeekends();
+  if(options.map(o => o.value).join() !== weekendOptions.map(o => o.value).join()){
+    const group = document.querySelector('[data-key="weekends"]');
+    group.replaceChildren(...options.map(option => {
+      const button = document.createElement('button');
+      button.className = 'choice';
+      button.dataset.value = option.value;
+      const label = document.createElement('strong');
+      label.textContent = option.label;
+      button.appendChild(label);
+      return button;
+    }));
+  }
+  weekendOptions = options;
+  const saved = Array.isArray(state.weekends) ? state.weekends : [];
+  state.weekends = [...new Set(saved)].filter(value => options.some(o => o.value === value));
+  return state.weekends.length > 0;
+}
+
+function ensureWeekendSelection(){
+  if(refreshWeekends()) return true;
+  show(3);
+  return false;
+}
 
 function fadeMusic(target, duration=700, onDone=null){
   clearInterval(fadeTimer);
@@ -407,6 +467,8 @@ function save(){
 }
 
 function show(n){
+  const hasWeekend = refreshWeekends();
+  if(n > 3 && !hasWeekend) n = 3;
   current = n;
   screens.forEach(s => s.classList.toggle('active', Number(s.dataset.screen) === n));
   const pct = n===0 ? 0 : n>=7 ? 100 : (n/maxQ)*100;
@@ -433,6 +495,7 @@ function adaptQ2(){
 }
 
 function restoreUI(){
+  refreshWeekends();
   document.querySelectorAll('.single').forEach(group=>{
     const key = group.dataset.key;
     group.querySelectorAll('.choice').forEach(btn=>{
@@ -480,7 +543,7 @@ function restoreUI(){
   }[state.chance]);
 
   setMicroNote('timingNote', {
-    Morning: 'Sunny-morning mission noted. Now we just need the haze to cooperate.',
+    Morning: 'Morning it is. Good food, coffee, and no rush.',
     'Brunch / lunch': 'Nice. Enough time to eat properly and still talk slowly.',
     Afternoon: 'Coffee and dessert territory… dangerous but acceptable.',
     Flexible: 'Easy. We can keep this one low pressure and decide closer.'
@@ -497,7 +560,7 @@ function restoreUI(){
   setMicroNote('areaNote', {
     KL: 'KL noted. I’ll keep the travel risk reasonable.',
     PJ: 'PJ noted. I’ll find somewhere easy and comfortable.',
-    'Somewhere convenient for you': 'Got it. Convenience first. I’ll work around you.',
+    'Somewhere convenient for me': 'Got it. Convenience first. I’ll work around you.',
     'You choose, I approve': 'Dangerous authority granted. I’ll keep all controls in place 😂'
   }[state.area]);
 }
@@ -555,7 +618,7 @@ document.getElementById('startBtn').addEventListener('click',async()=>{
 document.querySelectorAll('[data-next]').forEach(btn=>{
   btn.addEventListener('click',()=>{
     if(current===6){
-      buildSummary();
+      if(!buildSummary()) return;
       show(7);
     } else {
       show(current+1);
@@ -568,7 +631,8 @@ document.querySelectorAll('[data-back]').forEach(btn=>{
 });
 
 function resultText(){
-  const weekends = Array.isArray(state.weekends) ? state.weekends.join(', ') : 'TBC';
+  refreshWeekends();
+  const weekends = state.weekends.map(value => weekendOptions.find(o => o.value === value).label).join(', ') || 'TBC';
   const tone = state.chance==='proceed'
     ? 'Application accepted for review 😂'
     : state.chance==='slow'
@@ -587,10 +651,13 @@ Your turn now — shortlist the place haha`;
 }
 
 function buildSummary(){
+  if(!ensureWeekendSelection()) return false;
   document.getElementById('summary').textContent = resultText();
+  return true;
 }
 
 async function copyText(){
+  if(!ensureWeekendSelection()) return false;
   const text = resultText();
   try{
     await navigator.clipboard.writeText(text);
@@ -607,27 +674,29 @@ async function copyText(){
 }
 
 document.getElementById('copySendBtn').addEventListener('click', async ()=>{
-  buildSummary();
+  if(!buildSummary()) return;
   const ok = await copyText();
   const box = document.getElementById('copyStatus');
   box.classList.add('show');
-  if(!ok){
-    box.innerHTML = 'I couldn’t copy automatically on this browser.<br>Please long-press the result above and copy it into our Instagram chat ♡';
-  }
+  box.innerHTML = ok
+    ? 'Copied ♡<br>Now just paste it back into our Instagram chat. I’ll handle the rest.'
+    : 'I couldn’t copy automatically on this browser.<br>Please long-press the result above and copy it into our Instagram chat ♡';
 });
 
 document.getElementById('shareBtn').addEventListener('click', async ()=>{
-  buildSummary();
+  if(!buildSummary()) return;
   const text = resultText();
   if(navigator.share){
     try{
       await navigator.share({title:'Our first meet', text});
     }catch(e){}
   }else{
-    await copyText();
+    const ok = await copyText();
     const box = document.getElementById('copyStatus');
     box.classList.add('show');
-    box.innerHTML = 'Copied ♡<br>You can paste it into Instagram, WhatsApp, Telegram, or anywhere you like.';
+    box.innerHTML = ok
+      ? 'Copied ♡<br>You can paste it into Instagram, WhatsApp, Telegram, or anywhere you like.'
+      : 'I couldn’t copy automatically on this browser.<br>Please long-press the result above and copy it into our Instagram chat ♡';
   }
 });
 
@@ -645,7 +714,7 @@ document.getElementById('resetBtn').addEventListener('click',()=>{
   show(0);
 });
 
-if(current<0 || current>7) current=0;
+if(!Number.isInteger(current) || current<0 || current>7) current=0;
 show(current);
 if(current===7) buildSummary();
 </script>
